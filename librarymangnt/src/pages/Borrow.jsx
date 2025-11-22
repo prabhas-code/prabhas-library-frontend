@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import api from "../components/Api.jsx";
 import { toast } from "react-toastify";
 
 const Borrow = () => {
