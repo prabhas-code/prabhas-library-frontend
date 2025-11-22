@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import api from "../components/Api.jsx";
@@ -8,7 +7,6 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const backendURL = import.meta.env.VITE_BACKEND_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,13 +14,17 @@ const ForgotPassword = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post(`${backendURL}/auth/forgot-password`, {
-        email,
-      });
+
+      const res = await api.post("/forgot-password", { email });
+
       toast.success(res.data.message);
-      navigate("/verify-otp", { state: { email } });
+
+      const token = res.data.token;
+
+      // Redirect user to reset page with token
+      navigate(`/reset-password?token=${token}`);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Error sending OTP");
+      toast.error(err.response?.data?.message || "Error generating reset link");
     } finally {
       setLoading(false);
     }
@@ -34,6 +36,7 @@ const ForgotPassword = () => {
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">
           🔐 Forgot Password
         </h2>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -43,12 +46,14 @@ const ForgotPassword = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg cursor-pointer transition disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white 
+             font-semibold py-2 rounded-xl shadow-md transition disabled:opacity-50"
           >
-            {loading ? "Sending OTP..." : "Send OTP"}
+            {loading ? "Please wait..." : "Continue"}
           </button>
         </form>
       </div>

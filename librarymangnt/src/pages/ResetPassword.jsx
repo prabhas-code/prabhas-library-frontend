@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import api from "../components/Api.jsx";
@@ -9,7 +8,6 @@ const ResetPassword = () => {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const backendURL = import.meta.env.VITE_BACKEND_API_URL;
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -18,23 +16,20 @@ const ResetPassword = () => {
     try {
       setLoading(true);
 
-      // ✅ Get reset token stored during OTP verification
       const token = localStorage.getItem("resetToken");
-
       if (!token) {
-        toast.error("Reset token missing. Please verify OTP again.");
+        toast.error("Reset token missing. Verify OTP again.");
         navigate("/forgot-password");
         return;
       }
 
-      const res = await axios.post(`${backendURL}/auth/reset-password`, {
+      const res = await api.post("/reset-password", {
         token,
         newPassword: password,
       });
 
-      toast.success(res.data.message || "Password reset successful 🎉");
+      toast.success(res.data.message);
 
-      // ✅ Cleanup
       localStorage.removeItem("resetToken");
       navigate("/login");
     } catch (err) {
@@ -50,6 +45,7 @@ const ResetPassword = () => {
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-700">
           🔁 Reset Password
         </h2>
+
         <form onSubmit={handleReset} className="space-y-4">
           <input
             type="password"
@@ -59,6 +55,7 @@ const ResetPassword = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
+
           <input
             type="password"
             placeholder="Confirm new password"
@@ -67,6 +64,7 @@ const ResetPassword = () => {
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             required
           />
+
           <button
             type="submit"
             disabled={loading}

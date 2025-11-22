@@ -18,7 +18,6 @@ import MyPurchases from "./pages/MyPurchases";
 import MySales from "./pages/Author/MySales";
 import ScrollToTop from "./components/ScrollToTop";
 import About from "./pages/About";
-import api from "./components/Api";
 
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -31,7 +30,6 @@ import "./App.css";
 import AuthorBooks from "./pages/Author/AuthorBooks";
 import BookDetails from "./pages/BookDetails";
 import SearchResults from "./components/SearchResults";
-import VerifyOTP from "./pages/VerifyOtp";
 
 function AppRoutes() {
   const { user } = useAuth();
@@ -78,7 +76,7 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/verify-otp" element={<VerifyOTP />} />
+
       <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route element={<Layout />}>
