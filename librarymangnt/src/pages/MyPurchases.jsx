@@ -22,12 +22,15 @@ const MyPurchases = () => {
     fetchPurchases();
   }, []);
 
-  if (loading) return <Loader />;
-
   return (
     <div className="min-h-screen bg-gray-50 p-8 mt-20">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">🛍️ My Purchases</h1>
-      {purchases.length === 0 ? (
+
+      {loading ? (
+        <div className="flex justify-center mt-10">
+          <Loader />
+        </div>
+      ) : purchases.length === 0 ? (
         <p className="text-gray-600 text-center mt-10">
           You haven’t purchased any books yet.
         </p>

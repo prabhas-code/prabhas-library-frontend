@@ -23,15 +23,17 @@ const Returned = () => {
     fetchReturnedBooks();
   }, []);
 
-  if (loading) return <Loader />;
-
   return (
     <div className="min-h-screen pt-24 px-8">
       <h1 className="text-3xl text-blue-400 mb-8 text-center">
         Your Returned Books
       </h1>
 
-      {returnedBooks.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center mt-10">
+          <Loader />
+        </div>
+      ) : returnedBooks.length === 0 ? (
         <p className="text-center text-gray-600">
           You haven’t returned any books yet.
         </p>
