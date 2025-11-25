@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import api from "../components/Api.jsx";
+import Loader from "../components/Loader";
 
 const Dashboard = ({
   borrowedBooks: borrowedProp,
@@ -23,7 +23,6 @@ const Dashboard = ({
   );
   const [loading, setLoading] = useState(false);
 
-  // keep state synced if parent updates props
   useEffect(() => {
     if (Array.isArray(borrowedProp)) setBorrowedBooks(borrowedProp);
     if (Array.isArray(returnedProp)) setReturnedBooks(returnedProp);
@@ -138,7 +137,7 @@ const Dashboard = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {loading ? (
-            <div>Loading...</div>
+            <Loader />
           ) : borrowedBooks.length === 0 ? (
             <p className="text-gray-500">No borrowed books</p>
           ) : (

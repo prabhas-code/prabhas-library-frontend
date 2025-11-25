@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import { createContext, useContext } from "react";
-
-export const AuthContext = createContext();
+import { useEffect, useState, useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -15,7 +13,7 @@ export const AuthProvider = ({ children }) => {
         setUser(JSON.parse(storedUser));
       }
     } catch (error) {
-      console.log("failed to fetch user from loclStorage", error);
+      console.log("failed to fetch user from localStorage", error);
     } finally {
       setaAuthReady(true);
     }

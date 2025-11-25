@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import api from "../components/Api.jsx";
-import { useAuth } from "../contexts/AuthContext";
-import { BookOpenCheck } from "lucide-react"; // icon
+import api from "../components/Api";
+import Loader from "../components/Loader";
+import { BookOpenCheck } from "lucide-react";
 
 const Returned = () => {
   const [returnedBooks, setReturnedBooks] = useState([]);
-  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchReturnedBooks = async () => {
@@ -14,18 +13,21 @@ const Returned = () => {
         const response = await api.get("/user/returned/books", {
           withCredentials: true,
         });
-        // console.log(response.data);
         setReturnedBooks(response.data.returnedBooks || []);
       } catch (error) {
         console.error("Error fetching returned books", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchReturnedBooks();
   }, []);
 
+  if (loading) return <Loader />;
+
   return (
-    <div className="min-h-screen  pt-24 px-8 md:mt-12 lg:mt-10 ">
-      <h1 className="text-3xl  text-blue-400 mb-8 text-center">
+    <div className="min-h-screen pt-24 px-8">
+      <h1 className="text-3xl text-blue-400 mb-8 text-center">
         Your Returned Books
       </h1>
 
@@ -34,70 +36,21 @@ const Returned = () => {
           You haven’t returned any books yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {returnedBooks.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden  hover:shadow-xl transition flex flex-col"
-            >
-              {/* Thumbnail */}
-              <div className="h-60 w-full bg-gray-100 flex items-center justify-center">
-                <img
-                  src={
-                    item.book_id?.thumbnailphoto ||
-                    "https://via.placeholder.com/400x250"
-                  }
-                  alt={item.book_id?.name}
-                  className="h-full w-full "
-                />
-              </div>
-
-              {/* Book Info */}
-              <div className="p-5 flex flex-col flex-1 bg-gray-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <BookOpenCheck className="text-green-600" size={24} />
-                  <h2 className="text-lg font-bold text-blue-500">
-                    {item.book_id?.name}
-                  </h2>
-                </div>
-                <p className="text-sm mb-1">
-                  <span className="text-gray-400">Genre:</span>{" "}
-                  <span className="text-black">{item.book_id?.genre}</span>
-                </p>
-                <p className="text-sm mb-1">
-                  <span className="text-gray-400">Author:</span>{" "}
-                  <span className="text-black">
-                    {item.book_id?.author?.fullname}
-                  </span>
-                </p>
-                <p className="text-sm mb-3">
-                  <span className="text-gray-400">Price:</span>{" "}
-                  <span className="text-black">₹{item.book_id?.price}</span>
-                </p>
-                <div className="mt-auto text-sm text-gray-500">
-                  <p>
-                    <b>Issued:</b>{" "}
-                    {new Date(item.issuedAt).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <p>
-                    <b>Returned:</b>{" "}
-                    {new Date(item.returnedAt).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-
-                {/* Status Badge */}
-                <div className="mt-4 bg-green-100 text-green-700 px-3 py-1 rounded-lg text-center font-semibold">
-                  Returned Successfully
-                </div>
-              </div>
+            <div key={item._id} className="bg-white rounded-xl shadow-lg p-4">
+              <img
+                src={
+                  item.book_id?.thumbnailphoto ||
+                  "https://via.placeholder.com/400x250"
+                }
+                alt={item.book_id?.name}
+                className="w-full h-60 object-cover rounded-md"
+              />
+              <h2 className="text-lg font-bold text-blue-500 mt-3 flex items-center gap-3">
+                <BookOpenCheck className="text-green-600" />
+                {item.book_id?.name}
+              </h2>
             </div>
           ))}
         </div>

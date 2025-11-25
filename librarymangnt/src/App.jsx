@@ -22,141 +22,31 @@ import About from "./pages/About";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
-import AuthorLayout from "./pages/Author/AuthorLayout"; // ✅ import layout
-
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./App.css";
+import AuthorLayout from "./pages/Author/AuthorLayout";
 import AuthorBooks from "./pages/Author/AuthorBooks";
 import BookDetails from "./pages/BookDetails";
 import SearchResults from "./components/SearchResults";
 
-function AppRoutes() {
-  const { user } = useAuth();
+import Loader from "./components/Loader"; // ✅ global loader
 
-  // ✅ Author routes (inside AuthorLayout)
-  if (user?.role === "author") {
-    return (
-      <Routes>
-        <Route
-          element={
-            <ProtectedRoute>
-              <AuthorLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/author-dashboard" element={<AuthorDashBoard />} />
-          <Route path="/createbook" element={<AddBook />} />
-          <Route path="/updatebook/:id" element={<UpdateBook />} />
-          <Route
-            path="/mybooks"
-            element={
-              <ProtectedRoute>
-                <AuthorBooks />
-              </ProtectedRoute>
-            }
-          />
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
-          <Route path="/mysales" element={<MySales />} />
+// ===================================================================
+// SEPARATE COMPONENT TO HANDLE authReady LOADING
+// ===================================================================
 
-          <Route path="/profile" element={<Profile />} />
+function AppContent() {
+  const { authReady } = useAuth();
 
-          {/* <Route path="/mybooks" element={<AuthorBooks />} /> */}
-        </Route>
-
-        {/* Redirect any unknown author routes */}
-        <Route path="*" element={<Navigate to="/author-dashboard" replace />} />
-      </Routes>
-    );
+  // 🔥 Global loader before the entire app loads
+  if (!authReady) {
+    return <Loader />;
   }
 
-  // ✅ Normal user routes
   return (
-    <Routes>
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-
-      <Route path="/reset-password" element={<ResetPassword />} />
-
-      <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/searchbooks" element={<SearchResults />} />
-
-        <Route
-          path="/book/:id"
-          element={
-            <ProtectedRoute>
-              <BookDetails />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashBoard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/borrow"
-          element={
-            <ProtectedRoute>
-              <Borrow />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/borrowed"
-          element={
-            <ProtectedRoute>
-              <Borrowed />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/return"
-          element={
-            <ProtectedRoute>
-              <Return />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/returned"
-          element={
-            <ProtectedRoute>
-              <Returned />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/mypurchases"
-          element={
-            <ProtectedRoute>
-              <MyPurchases />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
-    </Routes>
-  );
-}
-
-export default function App() {
-  return (
-    <AuthProvider>
+    <>
       <BrowserRouter>
         <ScrollToTop />
         <AppRoutes />
@@ -182,6 +72,148 @@ export default function App() {
           background: "linear-gradient(to right, #34d399, #3b82f6)",
         }}
       />
+    </>
+  );
+}
+
+// ===================================================================
+// MAIN ROUTING LOGIC
+// ===================================================================
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  // AUTHOR ROUTES
+  if (user?.role === "author") {
+    return (
+      <Routes>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AuthorLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/author-dashboard" element={<AuthorDashBoard />} />
+          <Route path="/createbook" element={<AddBook />} />
+          <Route path="/updatebook/:id" element={<UpdateBook />} />
+
+          <Route
+            path="/mybooks"
+            element={
+              <ProtectedRoute>
+                <AuthorBooks />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/mysales" element={<MySales />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        {/* redirect unknown paths */}
+        <Route path="*" element={<Navigate to="/author-dashboard" replace />} />
+      </Routes>
+    );
+  }
+
+  // USER ROUTES
+  return (
+    <Routes>
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/searchbooks" element={<SearchResults />} />
+
+        <Route
+          path="/book/:id"
+          element={
+            <ProtectedRoute>
+              <BookDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashBoard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/borrow"
+          element={
+            <ProtectedRoute>
+              <Borrow />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/borrowed"
+          element={
+            <ProtectedRoute>
+              <Borrowed />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/return"
+          element={
+            <ProtectedRoute>
+              <Return />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/returned"
+          element={
+            <ProtectedRoute>
+              <Returned />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/mypurchases"
+          element={
+            <ProtectedRoute>
+              <MyPurchases />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+    </Routes>
+  );
+}
+
+// ===================================================================
+// ROOT APP COMPONENT
+// ===================================================================
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

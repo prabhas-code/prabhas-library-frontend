@@ -1,26 +1,28 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../components/Api";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 const MyPurchases = () => {
   const [purchases, setPurchases] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPurchases = async () => {
       try {
-        const res = await api.get(
-          "/mypurchases",
-
-          { withCredentials: true }
-        );
-        setPurchases(res.data.purchases);
-        // console.log(res.data.purchases);
+        const res = await api.get("/mypurchases", { withCredentials: true });
+        setPurchases(res.data.purchases || []);
       } catch (error) {
         toast.error("Failed to load your purchases");
+        console.error("Error fetching purchases", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPurchases();
   }, []);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8 mt-20">
@@ -40,19 +42,12 @@ const MyPurchases = () => {
                 src={
                   p.book.thumbnailphoto || "https://via.placeholder.com/200x250"
                 }
-                alt={p.book.name}
+                alt={p.book?.name}
                 className="w-full h-48 object-cover rounded-md"
               />
               <h3 className="font-semibold mt-3 text-gray-800 truncate">
-                {p.book.name}
+                {p.book?.name}
               </h3>
-              <p className="text-sm text-gray-500">
-                By {p.book.author?.fullname || "Unknown"}
-              </p>
-              <p className="text-indigo-600 font-semibold mt-2">₹{p.amount}</p>
-              <p className="text-xs text-gray-400 mt-1">
-                Purchased on {new Date(p.createdAt).toLocaleDateString()}
-              </p>
             </div>
           ))}
         </div>
