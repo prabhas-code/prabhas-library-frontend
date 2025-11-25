@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
@@ -8,10 +8,10 @@ import LogoutPopUp from "../components/LogoutPopUp.jsx";
 
 const Profile = () => {
   const { user, setUser } = useAuth();
-  const [username, setUsername] = useState(user?.username || "");
+  const [username] = useState(user?.username || "");
   const [fullname, setFullname] = useState(user?.fullname || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [gender, setGender] = useState(user?.gender || "");
+  const [email] = useState(user?.email || "");
+  const [gender] = useState(user?.gender || "");
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [preview, setPreview] = useState(user?.profilephoto || "");
   const [oldPassword, setOldPassword] = useState("");

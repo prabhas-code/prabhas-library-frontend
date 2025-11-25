@@ -31,9 +31,7 @@ const Borrowed = () => {
       </h1>
 
       {loading ? (
-        <div className="flex justify-center mt-10">
-          <Loader />
-        </div>
+        <Loader />
       ) : listOfBorrowedBooks.length === 0 ? (
         <p className="text-center mt-10">You have not borrowed any books.</p>
       ) : (

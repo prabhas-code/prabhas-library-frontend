@@ -27,9 +27,7 @@ const MyPurchases = () => {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">🛍️ My Purchases</h1>
 
       {loading ? (
-        <div className="flex justify-center mt-10">
-          <Loader />
-        </div>
+        <Loader />
       ) : purchases.length === 0 ? (
         <p className="text-gray-600 text-center mt-10">
           You haven’t purchased any books yet.

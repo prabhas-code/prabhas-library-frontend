@@ -30,9 +30,7 @@ const Returned = () => {
       </h1>
 
       {loading ? (
-        <div className="flex justify-center mt-10">
-          <Loader />
-        </div>
+        <Loader />
       ) : returnedBooks.length === 0 ? (
         <p className="text-center text-gray-600">
           You haven’t returned any books yet.

@@ -1,42 +1,52 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
-import api from "../components/Api.jsx";
+import Loader from "../components/Loader";
 
 const Return = () => {
   const { user } = useAuth();
-
+  const navigate = useNavigate();
   const backendURL = import.meta.env.VITE_BACKEND_API_URL;
-  // console.log("user", user);
 
   const { state } = useLocation();
-
   const { item } = state || {};
-  // console.log("return item", item);
+
+  const [loading, setLoading] = useState(false);
+
+  // ❗ Prevent crash on refresh
+  useEffect(() => {
+    if (!item) {
+      toast.error("Invalid return request!");
+      navigate("/borrowed");
+    }
+  }, [item, navigate]);
 
   const handleReturn = async () => {
+    setLoading(true);
+
     try {
-      // ✅ Corrected: Send the transaction ID in a JSON object
       const response = await axios.post(
         `${backendURL}/return`,
         { transaction_id: item._id },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      // console.log("book return response", response);
+
       toast.success(response.data.message);
+
+      setTimeout(() => {
+        navigate("/returned");
+      }, 800);
     } catch (error) {
-      console.error(
-        "Error returning book",
-        error.response?.data?.message || error.message
-      );
       toast.error(error.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (!item) return null; // fallback
+
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col md:flex-row justify-center items-start md:items-center p-4 md:p-10 gap-6 mt-14">
       {/* 🔹 Book Card */}
@@ -45,7 +55,6 @@ const Return = () => {
         className="bg-black rounded-2xl overflow-hidden shadow-[0_0_15px_white] hover:shadow-[0_0_30px_white]
                  transition duration-300 w-full md:w-1/3 p-4 flex flex-col"
       >
-        {/* Badges */}
         <div className="relative">
           <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
             {item.book_id.genre}
@@ -87,40 +96,39 @@ const Return = () => {
           Return Details
         </h2>
 
-        <div className="space-y-3 text-sm md:text-base">
-          <p>
-            <b>Name of the Returner:</b> {user.fullname}
-          </p>
-          <p>
-            <b>Book:</b> {item.book_id.name}
-          </p>
-          <p>
-            <b>Author:</b> {item.book_id.author?.fullname || "Unknown"}
-          </p>
-          <p>
-            <b>Description : </b>
-            {item.book_id.description}
-          </p>
+        {loading ? (
+          <Loader />
+        ) : (
+          <div className="space-y-3 text-sm md:text-base">
+            <p>
+              <b>Name of the Returner:</b> {user.fullname}
+            </p>
+            <p>
+              <b>Book:</b> {item.book_id.name}
+            </p>
+            <p>
+              <b>Author:</b> {item.book_id.author?.fullname || "Unknown"}
+            </p>
+            <p>
+              <b>Description:</b> {item.book_id.description}
+            </p>
+            <p>
+              <b>Issued On:</b> {new Date(item.createdAt).toLocaleDateString()}
+            </p>
 
-          <p>
-            <b>Issued On:</b> {new Date().toLocaleDateString()}
-          </p>
+            <p>
+              <b>Return At:</b> {new Date(Date.now()).toLocaleDateString()} (
+              <span className="text-red-600">Today</span>)
+            </p>
 
-          <p>
-            <b>Return At:</b>{" "}
-            {new Date(
-              Date.now() + 15 * 24 * 60 * 60 * 1000
-            ).toLocaleDateString()}
-            (<span className="text-red-600">After 15 days</span>)
-          </p>
-
-          <button
-            onClick={handleReturn}
-            className="bg-yellow-500 hover:bg-yellow-600 font-bold cursor-pointer text-white px-4 py-2 rounded-lg w-full mt-4"
-          >
-            Confirm Return
-          </button>
-        </div>
+            <button
+              onClick={handleReturn}
+              className="bg-yellow-500 hover:bg-yellow-600 font-bold cursor-pointer text-white px-4 py-2 rounded-lg w-full mt-4"
+            >
+              Confirm Return
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

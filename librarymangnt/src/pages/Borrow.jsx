@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { Star } from "lucide-react";
+
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { toast } from "react-toastify";

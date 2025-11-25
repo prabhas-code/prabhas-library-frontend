@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import personIcon from "../assets/person_icon.svg";
@@ -15,7 +15,7 @@ const Register = () => {
     gender: "",
     role: "",
   });
-  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [profilePhoto] = useState(null);
   const backendURL = import.meta.env.VITE_BACKEND_API_URL;
   const navigate = useNavigate();
 

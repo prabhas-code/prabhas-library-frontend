@@ -1,8 +1,5 @@
 import Headers from "../components/Header";
-import Home from "./Home";
-import Cookies from "js-cookie";
 
-import BookCard from "../components/BookCard";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import AuthorDashboard from "./Author/AuthorDashboard";

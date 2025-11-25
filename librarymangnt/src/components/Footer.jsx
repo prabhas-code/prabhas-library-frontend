@@ -7,10 +7,9 @@ import {
   Mail,
   BookOpen,
 } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const Footer = () => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   // ❌ Hide footer on Profile Page (mobile + desktop)
@@ -37,8 +36,6 @@ const Footer = () => {
           </p>
         </div>
 
-        
-
         {/* 🔹 Support Section */}
         <div>
           <h2 className="text-lg font-semibold text-white mb-3">Support</h2>
@@ -63,8 +60,6 @@ const Footer = () => {
           <h2 className="text-lg font-semibold text-white mb-3">
             Connect With Us
           </h2>
-
-          
 
           <p className="text-gray-400 text-sm">
             📍 Hyderabad, India

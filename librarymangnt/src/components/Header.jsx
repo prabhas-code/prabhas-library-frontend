@@ -1,6 +1,6 @@
 // src/components/Headers.jsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import handIcon from "../assets/hand_wave.png";

@@ -3,15 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import api from "./Api.jsx";
+import Loader from "./Loader.jsx";
 
 const BookCard = ({ book }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const backendURL = import.meta.env.VITE_BACKEND_API_URL;
+  const [loading, setLoading] = useState(false);
+
   const razorKey = import.meta.env.VITE_RAZORPAY_KEY;
 
-  // Borrow action
+  // ========= BORROW =========
   const handleBorrow = () => {
     if (!user) {
       navigate("/login");
@@ -20,17 +21,18 @@ const BookCard = ({ book }) => {
     }
   };
 
-  // Go to details page
+  // ========= DETAILS PAGE =========
   const handleDetails = () => {
     navigate(`/book/${book._id}`);
   };
 
-  // Open modal for buying
+  // ========= BUY NOW =========
   const handleBuy = async () => {
     if (!user) return navigate("/login");
 
+    setLoading(true);
+
     try {
-      // ✅ Create Razorpay order
       const res = await api.post("/create-order", {
         user_id: user._id,
         book_id: book._id,
@@ -44,10 +46,12 @@ const BookCard = ({ book }) => {
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong while starting payment");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 🔹 Initialize Razorpay Checkout
+  // ========= RAZORPAY INIT =========
   const initPay = (order, book) => {
     const options = {
       key: razorKey,
@@ -56,9 +60,9 @@ const BookCard = ({ book }) => {
       name: "Libraverse 📚",
       description: `Purchase: ${book.name}`,
       order_id: order.id,
+
       handler: async (response) => {
         try {
-          // ✅ Verify payment on backend
           const verifyRes = await api.post("/verify-payment", {
             ...response,
             book_id: book._id,
@@ -66,8 +70,7 @@ const BookCard = ({ book }) => {
           });
 
           if (verifyRes.data.success) {
-            toast.success(`✅ Payment successful for "${book.name}"!`);
-            fetchBook(); // refresh stock
+            toast.success(`Payment successful for "${book.name}"!`);
           } else {
             toast.error("Payment verification failed ❌");
           }
@@ -75,14 +78,13 @@ const BookCard = ({ book }) => {
           console.error(err);
         }
       },
-      theme: {
-        color: "#2563EB",
-      },
+
+      theme: { color: "#2563EB" },
+
       modal: {
-        ondismiss: () => {
-          toast.info("Payment cancelled.");
-        },
+        ondismiss: () => toast.info("Payment cancelled."),
       },
+
       prefill: {
         name: user.fullname || "",
         email: user.email || "",
@@ -93,8 +95,6 @@ const BookCard = ({ book }) => {
     rzp.open();
   };
 
-  // Confirm buy
-
   return (
     <>
       <div
@@ -102,8 +102,20 @@ const BookCard = ({ book }) => {
         className="bg-black rounded-2xl overflow-hidden shadow-[0_0_15px_white] hover:shadow-[0_0_30px_white]
                    transition-opacity duration-300 ml-5 border-white mr-5 flex flex-col justify-between h-full"
       >
+        {/* ============= LOADER OVERLAY (ONLY FOR BUY NOW) ============= */}
+        {loading && (
+          <div className="absolute inset-0 bg-black/60 flex justify-center items-center z-20 rounded-2xl">
+            <Loader />
+          </div>
+        )}
+
         {/* Thumbnail + Badges */}
-        <div className="relative cursor-pointer" onClick={handleDetails}>
+        <div
+          className={`relative cursor-pointer ${
+            loading ? "pointer-events-none opacity-40" : ""
+          }`}
+          onClick={handleDetails}
+        >
           <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
             {book.genre}
           </span>
@@ -122,24 +134,25 @@ const BookCard = ({ book }) => {
         </div>
 
         {/* Book Info */}
-        <div className="p-4">
+        <div
+          className={`p-4 ${loading ? "opacity-40 pointer-events-none" : ""}`}
+        >
           <h2
             onClick={handleDetails}
             className="text-xl font-bold text-white cursor-pointer hover:underline"
           >
             {book.name}
           </h2>
+
           <p className="text-gray-500 mt-1 text-sm line-clamp-2">
             {book.description}
           </p>
 
-          {/* Metadata */}
           <div className="flex items-center text-sm text-gray-500 mt-2 justify-between">
             <span>🧑 {book.author.fullname}</span>
             <span>📅 {new Date(book.createdAt).toLocaleDateString()}</span>
           </div>
 
-          {/* Price + View Details Link */}
           <div className="flex items-center justify-between mt-4 mb-4">
             <p className="text-lg font-bold text-white">
               ₹{book.price.toLocaleString()}
@@ -156,21 +169,26 @@ const BookCard = ({ book }) => {
           <div className="flex gap-3 mt-auto">
             <button
               onClick={handleBuy}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg w-1/2 px-2 py-1 cursor-pointer"
+              disabled={loading}
+              className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg w-1/2 px-2 py-1 cursor-pointer ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               Buy Now
             </button>
+
             <button
               onClick={handleBorrow}
-              className="bg-yellow-400 cursor-pointer hover:bg-yellow-500 text-black font-semibold rounded-lg w-1/2 px-2 py-1 "
+              disabled={loading}
+              className={`bg-yellow-400 hover:bg-yellow-500 text-black font-semibold rounded-lg w-1/2 px-2 py-1 cursor-pointer ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               Borrow Now
             </button>
           </div>
         </div>
       </div>
-
-      {/* 🔹 Buy Modal */}
     </>
   );
 };
