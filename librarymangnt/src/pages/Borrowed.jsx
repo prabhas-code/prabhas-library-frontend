@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import axios from "axios";
 import BorrowedBooksItem from "../components/ListOfBorrowedBooks";
 import Loader from "../components/Loader";
@@ -25,16 +24,18 @@ const Borrowed = () => {
     fetchBorrowedBooks();
   }, []);
 
-  if (loading) return <Loader />;
-
   return (
     <div className="min-h-screen p-10 mt-14 md:mt-20">
-      <h1 className="text-black text-3xl  mb-6 text-center">
+      <h1 className="text-black text-3xl mb-6 text-center">
         Your Borrowed Books
       </h1>
 
-      {listOfBorrowedBooks.length === 0 ? (
-        <p>You have not borrowed any books.</p>
+      {loading ? (
+        <div className="flex justify-center mt-10">
+          <Loader />
+        </div>
+      ) : listOfBorrowedBooks.length === 0 ? (
+        <p className="text-center mt-10">You have not borrowed any books.</p>
       ) : (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {listOfBorrowedBooks.map((item) => (
