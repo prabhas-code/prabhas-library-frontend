@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import BookCard from "../components/BookCard";
@@ -14,6 +15,12 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  // read search param
+  const searchParams = new URLSearchParams(location.search);
+  const query = searchParams.get("q")?.trim() || "";
 
   const carouselItems = [
     {
@@ -65,20 +72,34 @@ const Home = () => {
     slidesToScroll: 1,
   };
 
-  const getBooksList = async (pageNum = 1) => {
+  const getBooks = async (pageNum = 1, searchQuery = "") => {
     try {
       setLoading(true);
-      const res = await api.get(`/allbooks?page=${pageNum}&limit=8`);
-      const data = res.data;
 
-      if (pageNum === 1) {
-        setBookList(data.books);
+      let endpoint;
+      if (searchQuery) {
+        endpoint = `/searchbooks?query=${encodeURIComponent(searchQuery)}`;
       } else {
-        setBookList((prev) => [...prev, ...data.books]);
+        endpoint = `/allbooks?page=${pageNum}&limit=8`;
       }
 
-      setTotalPages(data.totalPages);
-      setPage(data.currentPage);
+      const res = await api.get(endpoint);
+      const data = res.data;
+
+      if (searchQuery) {
+        // search results — reset list & paging
+        setBookList(data.books || []);
+        setTotalPages(1);
+        setPage(1);
+      } else {
+        if (pageNum === 1) {
+          setBookList(data.books || []);
+        } else {
+          setBookList((prev) => [...prev, ...(data.books || [])]);
+        }
+        setTotalPages(data.totalPages || 1);
+        setPage(data.currentPage || pageNum);
+      }
     } catch (error) {
       toast.error("Error fetching books");
       console.error(error);
@@ -87,17 +108,20 @@ const Home = () => {
     }
   };
 
+  // run on mount, or whenever query changes
   useEffect(() => {
-    getBooksList();
-  }, []);
+    getBooks(1, query);
+    // Optionally, scroll to top after search
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [query]);
 
   return (
-    <div className="min-h-screen overflow-auto mt-6 md:mt-20 mb-24 ">
-      {/* 🔹 Carousel Section */}
+    <div className="min-h-screen overflow-auto mt-6 md:mt-20 mb-24">
+      {/* Carousel Section */}
       <div className="relative w-full max-w-7xl mt-15 px-4 md:px-0 md:mx-auto md:mt-15 mb-10 rounded-2xl overflow-hidden shadow-lg">
         <Slider {...settings}>
-          {carouselItems.map((item, index) => (
-            <div key={index} className="relative h-[260px] md:h-[420px]">
+          {carouselItems.map((item, idx) => (
+            <div key={idx} className="relative h-[260px] md:h-[420px]">
               <img
                 src={item.image}
                 alt={item.title}
@@ -114,7 +138,7 @@ const Home = () => {
         </Slider>
       </div>
 
-      {/* 🔹 Books Grid */}
+      {/* Books Grid / Results */}
       <div className="px-4 md:px-6 py-6 md:py-10">
         {loading && booksList.length === 0 ? (
           <div className="flex justify-center items-center h-40">
@@ -128,11 +152,11 @@ const Home = () => {
               ))}
             </div>
 
-            {/* 🔹 View More */}
-            {page < totalPages && (
+            {/* View More only when not searching */}
+            {!query && page < totalPages && (
               <div className="flex justify-center mt-8 md:mt-10 mb-10">
                 <button
-                  onClick={() => getBooksList(page + 1)}
+                  onClick={() => getBooks(page + 1, "")}
                   disabled={loading}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md cursor-pointer"
                 >
@@ -143,7 +167,7 @@ const Home = () => {
           </>
         ) : (
           <p className="text-center text-gray-600 text-lg">
-            No books available 📚
+            {query ? `No books found for "${query}"` : "No books available 📚"}
           </p>
         )}
       </div>

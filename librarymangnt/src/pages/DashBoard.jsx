@@ -1,40 +1,24 @@
 // Dashboard.jsx
 import { useState, useEffect } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 
-const Dashboard = ({
-  borrowedBooks: borrowedProp,
-  returnedBooks: returnedProp,
-}) => {
-  // support both shapes: useAuth() => { user, setUser } OR just user
+const Dashboard = () => {
   const auth = useAuth();
   const user = auth?.user ?? auth;
   const navigate = useNavigate();
   const backendURL = import.meta.env.VITE_BACKEND_API_URL;
 
-  const [borrowedBooks, setBorrowedBooks] = useState(
-    Array.isArray(borrowedProp) ? borrowedProp : []
-  );
-  const [returnedBooks, setReturnedBooks] = useState(
-    Array.isArray(returnedProp) ? returnedProp : []
-  );
+  const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [returnedBooks, setReturnedBooks] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch all dashboard data
   useEffect(() => {
-    if (Array.isArray(borrowedProp)) setBorrowedBooks(borrowedProp);
-    if (Array.isArray(returnedProp)) setReturnedBooks(returnedProp);
-  }, [borrowedProp, returnedProp]);
-
-  // If props not provided, try fetching from API (optional)
-  useEffect(() => {
-    const shouldFetch =
-      !Array.isArray(borrowedProp) && !Array.isArray(returnedProp);
-    if (!shouldFetch) return;
-
     let mounted = true;
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -46,40 +30,41 @@ const Dashboard = ({
             withCredentials: true,
           }),
         ]);
+
         if (!mounted) return;
-        setBorrowedBooks(bRes.data?.borrowedBooks ?? bRes.data ?? []);
-        setReturnedBooks(rRes.data?.returnedBooks ?? rRes.data ?? []);
+
+        setBorrowedBooks(bRes.data?.borrowedBooks ?? []);
+        setReturnedBooks(rRes.data?.returnedBooks ?? []);
       } catch (err) {
-        console.error("fetch dashboard data", err);
+        console.error("fetch dashboard data error:", err);
       } finally {
         if (mounted) setLoading(false);
       }
     };
+
     fetchData();
     return () => {
       mounted = false;
     };
-  }, [borrowedProp, returnedProp]);
+  }, []);
 
-  const totalBorrowed =
-    (borrowedBooks?.length || 0) + (returnedBooks?.length || 0);
-  const currentlyBorrowed = borrowedBooks?.length || 0;
-  const totalReturned = returnedBooks?.length || 0;
+  const totalBorrowed = borrowedBooks.length + returnedBooks.length;
+  const currentlyBorrowed = borrowedBooks.length;
+  const totalReturned = returnedBooks.length;
 
   const formatDate = (d) => {
     if (!d) return "-";
     const dt = new Date(d);
-    if (isNaN(dt)) return "-";
-    return dt.toLocaleDateString();
+    return isNaN(dt) ? "-" : dt.toLocaleDateString();
   };
 
   return (
-    <div className="p-6 md:mt-20 min-h-screen mt-14 ">
+    <div className="p-6 md:mt-20 min-h-screen mt-14">
       <h1 className="text-3xl text-center mt-6 mb-6">Dashboard</h1>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Profile Card */}
         <div className="bg-gray-200 p-6 rounded-xl shadow-md md:col-span-1">
-          {/* Row: Image + Details */}
           <div className="flex items-center gap-4">
             <img
               src={user?.profilephoto}
@@ -93,10 +78,9 @@ const Dashboard = ({
             </div>
           </div>
 
-          {/* Borrowed / Returned / Fines */}
           <div className="mt-6 text-sm space-y-2">
             <div className="flex">
-              <span className="w-45"> Current Borrowed Books</span>
+              <span className="w-45">Current Borrowed Books</span>
               <span className="font-semibold">{currentlyBorrowed}</span>
             </div>
             <div className="flex">
@@ -106,24 +90,24 @@ const Dashboard = ({
           </div>
         </div>
 
-        {/* Stat cards */}
-        <div className="bg-blue-500 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+        {/* Stats */}
+        <div className="bg-blue-500 text-white p-6 rounded-xl shadow-md text-center flex flex-col items-center justify-center">
           <h1 className="text-2xl">Total Borrowed Books</h1>
           <p className="text-3xl font-bold">{totalBorrowed}</p>
         </div>
 
-        <div className="bg-green-500 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+        <div className="bg-green-500 text-white p-6 rounded-xl shadow-md text-center flex flex-col items-center justify-center">
           <h1 className="text-2xl">Returned Books</h1>
           <p className="text-3xl font-bold">{totalReturned}</p>
         </div>
 
-        <div className="bg-orange-400 text-white p-6 rounded-xl shadow-md flex flex-col items-center justify-center text-center">
+        <div className="bg-orange-400 text-white p-6 rounded-xl shadow-md text-center flex flex-col items-center justify-center">
           <h1 className="text-2xl">Currently Borrowed</h1>
           <p className="text-3xl font-bold">{currentlyBorrowed}</p>
         </div>
       </div>
 
-      {/* Current Borrowed Books preview */}
+      {/* Current Borrowed Books */}
       <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">Current Borrowed Books</h3>
@@ -137,7 +121,9 @@ const Dashboard = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {loading ? (
-            <Loader />
+            <div className="flex justify-center items-center h-48 w-full col-span-4">
+              <Loader />
+            </div>
           ) : borrowedBooks.length === 0 ? (
             <p className="text-gray-500">No borrowed books</p>
           ) : (
@@ -181,7 +167,12 @@ const Dashboard = ({
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h3 className="font-semibold mb-4">Recently Returned Books</h3>
-          {returnedBooks.length === 0 ? (
+
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <Loader />
+            </div>
+          ) : returnedBooks.length === 0 ? (
             <p className="text-gray-500">No recently returned</p>
           ) : (
             returnedBooks.slice(0, 3).map((item) => (
@@ -215,7 +206,12 @@ const Dashboard = ({
 
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h3 className="font-semibold mb-4">Reminders</h3>
-          {borrowedBooks.length === 0 ? (
+
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <Loader />
+            </div>
+          ) : borrowedBooks.length === 0 ? (
             <p className="text-gray-500">No reminders</p>
           ) : (
             borrowedBooks.slice(0, 5).map((item) => (

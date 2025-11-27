@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import mailIcon from "../assets/mail_icon.svg";

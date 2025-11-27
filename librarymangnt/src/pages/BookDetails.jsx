@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import api from "../components/Api.jsx";
 
 const BookDetails = () => {

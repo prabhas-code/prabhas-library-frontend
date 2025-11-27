@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import axios from "axios";
 import Loader from "../components/Loader";
 

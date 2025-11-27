@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth.js";
 import { toast } from "react-toastify";
 import libLogo from "../../assets/LibImage.webp";
 import {

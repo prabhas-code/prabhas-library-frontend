@@ -24,13 +24,15 @@ const Returned = () => {
   }, []);
 
   return (
-    <div className="min-h-screen pt-24 px-8">
+    <div className="min-h-screen pt-24 px-8 md:mt-10">
       <h1 className="text-3xl text-blue-400 mb-8 text-center">
         Your Returned Books
       </h1>
 
       {loading ? (
-        <Loader />
+        <div className="flex justify-center items-center h-64">
+          <Loader />
+        </div>
       ) : returnedBooks.length === 0 ? (
         <p className="text-center text-gray-600">
           You haven’t returned any books yet.

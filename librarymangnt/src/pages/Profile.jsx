@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import { toast } from "react-toastify";
 import api from "../components/Api.jsx";
 import personIcon from "../assets/person_icon.svg";

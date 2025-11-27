@@ -1,7 +1,7 @@
 import Headers from "../components/Header";
 
 import { Outlet } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth.js";
 import AuthorDashboard from "./Author/AuthorDashboard";
 import Footer from "../components/Footer";
 
