@@ -1,4 +1,3 @@
-// src/components/Headers.jsx
 import { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth.js";
@@ -23,11 +22,11 @@ const Headers = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
 
-  // Detect current route
   const location = useLocation();
   const isHome = location.pathname === "/";
 
-  const handleSearch = async (e) => {
+  // ====================== SEARCH HANDLER ======================
+  const handleSearch = (e) => {
     e.preventDefault();
 
     if (!query.trim()) {
@@ -35,12 +34,13 @@ const Headers = () => {
       return;
     }
 
-    // Instead of calling API here, just update URL with search param
-    navigate(`/?q=${encodeURIComponent(query.trim())}`);
-    // Clear input if you like
+    // Instead of fetching and redirecting now — just update URL query param
+    const encoded = encodeURIComponent(query.trim());
+    navigate(`/?q=${encoded}`);
     setQuery("");
   };
 
+  // ====================== LOGOUT HANDLER ======================
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -82,6 +82,7 @@ const Headers = () => {
           )}
         </div>
 
+        {/* Search Bar (ONLY on Home page) */}
         {isHome && (
           <form onSubmit={handleSearch} className="flex gap-1 w-1/3">
             <input
@@ -106,6 +107,7 @@ const Headers = () => {
               Home
             </NavLink>
           </li>
+
           {!user ? (
             <>
               <li>
@@ -136,6 +138,7 @@ const Headers = () => {
                   Returned
                 </NavLink>
               </li>
+
               <div
                 className="relative inline-block"
                 onMouseEnter={() => setprofileOpen(true)}
@@ -172,9 +175,11 @@ const Headers = () => {
                           My Purchases
                         </NavLink>
                       </li>
+
                       <li>
                         <hr className="my-1 border-gray-500" />
                       </li>
+
                       <li>
                         <button
                           onClick={() => setShowLogoutPopUp(true)}
@@ -192,8 +197,69 @@ const Headers = () => {
         </ul>
       </nav>
 
-      {/* MOBILE HEADER & Bottom Nav (same logic) */}
-      {/* ... rest of your mobile navbar code unchanged ... */}
+      {/* MOBILE BAR remains unchanged */}
+      <div className="md:hidden fixed top-0 left-0 w-full bg-white flex items-center justify-between px-4 py-2 shadow-md z-50 h-16">
+        <img
+          src={libLogo}
+          alt="logo"
+          className="h-8 rounded-lg cursor-pointer"
+          onClick={() => navigate("/")}
+        />
+
+        {isHome && (
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center gap-2 w-2/3 justify-end"
+          >
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search..."
+              className="flex-grow px-3 py-1 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </form>
+        )}
+
+        <button
+          onClick={() => navigate("/profile")}
+          className="bg-green-700 text-white rounded-full flex justify-center items-center cursor-pointer h-8 w-8 overflow-hidden"
+        >
+          {user?.profilephoto ? (
+            <img
+              src={user.profilephoto}
+              alt="profile"
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            user?.username?.charAt(0).toUpperCase() || <User size={16} />
+          )}
+        </button>
+      </div>
+
+      {user && (
+        <div className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow-lg border-t flex justify-around items-center py-2 z-50">
+          <NavLink to="/" className={linksClasses}>
+            <Home size={24} />
+          </NavLink>
+
+          <NavLink to="/dashboard" className={linksClasses}>
+            <LayoutDashboard size={24} />
+          </NavLink>
+
+          <NavLink to="/borrowed" className={linksClasses}>
+            <BookOpen size={24} />
+          </NavLink>
+
+          <NavLink to="/returned" className={linksClasses}>
+            <Clock size={24} />
+          </NavLink>
+
+          <NavLink to="/mypurchases" className={linksClasses}>
+            <ShoppingBag size={24} />
+          </NavLink>
+        </div>
+      )}
 
       {showLogoutPopUp && (
         <LogoutPopUp

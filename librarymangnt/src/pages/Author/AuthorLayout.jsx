@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/useAuth.js";
 import { toast } from "react-toastify";
@@ -29,6 +29,7 @@ const AuthorLayout = () => {
       navigate("/login");
     } catch (err) {
       toast.error("Logout failed");
+      console.log(err);
     }
   };
 

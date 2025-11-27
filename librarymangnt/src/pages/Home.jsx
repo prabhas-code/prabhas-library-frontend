@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Slider from "react-slick";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import BookCard from "../components/BookCard";
@@ -17,7 +17,6 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
 
   const location = useLocation();
-  const navigate = useNavigate();
   // read search param
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get("q")?.trim() || "";

@@ -146,9 +146,9 @@ const BookDetails = () => {
               <strong>Author:</strong> {book.author?.fullname}
             </p>
 
-            <p className="text-gray-600 mb-2 text-sm md:text-base">
+            {/* <p className="text-gray-600 mb-2 text-sm md:text-base">
               <strong>Author Email:</strong> {book.author?.email}
-            </p>
+            </p> */}
 
             <p className="text-gray-600 mb-2 text-sm md:text-base">
               <strong>Genre:</strong> {book.genre}
